@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:13-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data/
+    restart: always
+    environment:
+      POSTGRES_DB: local_dev
+      POSTGRES_PASSWORD: postgres
+volumes:
+  db:
