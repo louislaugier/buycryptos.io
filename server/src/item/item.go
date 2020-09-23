@@ -16,8 +16,8 @@ type item struct {
 // GET items
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		// test
 		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
+		// create db & replace values
 		itemRows, err := database.DB.Query("SELECT id, ...... FROM items " + queryParams + " ....... ;")
 		defer itemRows.Close()
 		if err != nil {
