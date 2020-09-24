@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"net/url"
-	"os"
 	"strings"
 
 	_ "github.com/lib/pq" // Postgres driver
@@ -16,7 +15,7 @@ func connect() *sql.DB {
 	// if err := godotenv.Load(); err != nil {
 	// 	panic(err)
 	// }
-	db, _ := sql.Open("postgres", "postgres://postgres:"+os.Getenv("DB_PASSWORD")+"@"+os.Getenv("DB_HOST")+":5432/"+os.Getenv("DB_NAME")+"?sslmode=disable")
+	db, _ := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/local_dev?sslmode=disable")
 	err := db.Ping()
 	if err != nil {
 		panic(err)
