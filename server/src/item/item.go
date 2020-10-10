@@ -1,52 +1,61 @@
 package item
 
 import (
-	"log"
+	"time"
 
 	"buycryptos/server/database"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type item struct {
-	ID uuid.UUID `json:"id"`
+	ID                 int8      `json:"id"`
+	Title              string    `json:"title"`
+	BaseLink           string    `json:"base_link"`
+	RefLink            string    `json:"ref_link"`
+	Description        string    `json:"description"`
+	IsFeatured         bool      `json:"is_featured"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
+	RefLinkOwnerUserID int8      `json:"ref_link_owner_user_id"`
+	FeaturerUserID     string    `json:"featurer_user_id"`
 }
 
 // GET items
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
-		// create db & replace values
-		itemRows, err := database.DB.Query("SELECT id, ...... FROM items " + queryParams + " ....... ;")
-		defer itemRows.Close()
+		itemsRows, err := database.DB.Query("SELECT * FROM items " + queryParams + "';")
+		defer itemsRows.Close()
+		code := 200
+		msg := "OK"
+		items := []*item{}
 		if err != nil {
-			items := []*item{}
-			for itemRows.Next() {
+			for itemsRows.Next() {
 				i := &item{}
-				itemRows.Scan(&i.ID)
+				itemsRows.Scan(&i.ID)
 				items = append(items, i)
 			}
-			c.JSON(200, &gin.H{
-				"statusCode": "200",
-				"message":    "OK",
-				"error":      nil,
-				"meta": gin.H{
-					"query":       c.Request.URL.Query(),
-					"resultCount": len(items),
-				},
-				"data": items,
-			})
+			if len(items) == 0 {
+				code = 404
+				msg = "No items"
+				_, ID := c.Request.URL.Query()["id"]
+				if ID {
+					msg = "Item not found"
+				}
+			}
 		} else {
-			c.JSON(500, &gin.H{
-				"statusCode": "500",
-				"message":    "Internal Server Error",
-				"error":      err.Error(),
-				"meta": gin.H{
-					"query": c.Request.URL.Query(),
-				},
-			})
-			log.Println(err)
+			code = 500
+			msg = "Internal server error"
 		}
+		c.JSON(code, &gin.H{
+			"statusCode": code,
+			"message":    msg,
+			"error":      err.Error(),
+			"meta": gin.H{
+				"query": c.Request.URL.Query(),
+			},
+			"data": items,
+		})
 	}
 }

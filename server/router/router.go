@@ -2,6 +2,7 @@ package router
 
 import (
 	"buycryptos/server/src/item"
+	"buycryptos/server/src/user"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,9 @@ func Start() *gin.Engine {
 
 	// Items
 	r.GET(base+"/items", item.GET())
+
+	// Users
+	r.GET(base+"/user", user.GET())
 
 	return r
 }

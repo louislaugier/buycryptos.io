@@ -73,7 +73,7 @@ CREATE TABLE "public"."items" (
     "created_at" timestamp NOT NULL,
     "updated_at" timestamp NOT NULL,
     "ref_link_owner_user_id" int8,
-    "featured_by" int8,
+    "featurer_user_id" int8,
     PRIMARY KEY ("id")
 );
 
