@@ -1,6 +1,5 @@
 CREATE SEQUENCE IF NOT EXISTS auctions_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."auctions" (
     "id" int8 NOT NULL DEFAULT nextval('auctions_id_seq'::regclass),
     "item_id" int8 NOT NULL,
@@ -11,7 +10,6 @@ CREATE TABLE "public"."auctions" (
 
 CREATE SEQUENCE IF NOT EXISTS bids_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."bids" (
     "id" int8 NOT NULL DEFAULT nextval('bids_id_seq'::regclass),
     "auction_id" int8 NOT NULL,
@@ -24,7 +22,6 @@ CREATE TABLE "public"."bids" (
 
 CREATE SEQUENCE IF NOT EXISTS categories_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."categories" (
     "id" int8 NOT NULL DEFAULT nextval('categories_id_seq'::regclass),
     "title" varchar NOT NULL,
@@ -34,7 +31,6 @@ CREATE TABLE "public"."categories" (
 
 CREATE SEQUENCE IF NOT EXISTS ratings_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."comments" (
     "id" int8 NOT NULL DEFAULT nextval('ratings_id_seq'::regclass),
     "item_id" int8 NOT NULL,
@@ -46,7 +42,6 @@ CREATE TABLE "public"."comments" (
 
 CREATE SEQUENCE IF NOT EXISTS featurings_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."featurings" (
     "id" int8 NOT NULL DEFAULT nextval('featurings_id_seq'::regclass),
     "user_id" int8 NOT NULL,
@@ -57,7 +52,6 @@ CREATE TABLE "public"."featurings" (
 
 CREATE SEQUENCE IF NOT EXISTS fundings_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."fundings" (
     "id" int8 NOT NULL DEFAULT nextval('fundings_id_seq'::regclass),
     "user_id" int8 NOT NULL,
@@ -69,7 +63,6 @@ CREATE TABLE "public"."fundings" (
 
 CREATE SEQUENCE IF NOT EXISTS items_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."items" (
     "id" int8 NOT NULL DEFAULT nextval('items_id_seq'::regclass),
     "title" varchar NOT NULL,
@@ -86,7 +79,6 @@ CREATE TABLE "public"."items" (
 
 CREATE SEQUENCE IF NOT EXISTS notifications_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."notifications" (
     "id" int8 NOT NULL DEFAULT nextval('notifications_id_seq'::regclass),
     "user_id" int8 NOT NULL,
@@ -98,7 +90,6 @@ CREATE TABLE "public"."notifications" (
 
 CREATE SEQUENCE IF NOT EXISTS requests_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."requests" (
     "id" int8 NOT NULL DEFAULT nextval('requests_id_seq'::regclass),
     "action_type" varchar NOT NULL DEFAULT ''::character varying,
@@ -116,7 +107,6 @@ CREATE TABLE "public"."requests" (
 
 CREATE SEQUENCE IF NOT EXISTS users_id_seq;
 
--- Table Definition
 CREATE TABLE "public"."users" (
     "id" int8 NOT NULL DEFAULT nextval('users_id_seq'::regclass),
     "email" varchar NOT NULL,
