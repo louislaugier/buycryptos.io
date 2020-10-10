@@ -96,11 +96,11 @@ CREATE TABLE "public"."notifications" (
     PRIMARY KEY ("id")
 );
 
-CREATE SEQUENCE IF NOT EXISTS untitled_table_197_id_seq;
+CREATE SEQUENCE IF NOT EXISTS requests_id_seq;
 
 -- Table Definition
 CREATE TABLE "public"."requests" (
-    "id" int8 NOT NULL DEFAULT nextval('untitled_table_197_id_seq'::regclass),
+    "id" int8 NOT NULL DEFAULT nextval('requests_id_seq'::regclass),
     "action_type" varchar NOT NULL DEFAULT ''::character varying,
     "title" varchar,
     "base_link" varchar,
