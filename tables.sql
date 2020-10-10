@@ -1,8 +1,3 @@
--- Database: local_dev
--- Generation Time: 2020-10-10 18:20:45.9510
--- -------------------------------------------------------------
-
-
 CREATE SEQUENCE IF NOT EXISTS auctions_id_seq;
 
 -- Table Definition
@@ -10,8 +5,7 @@ CREATE TABLE "public"."auctions" (
     "id" int8 NOT NULL DEFAULT nextval('auctions_id_seq'::regclass),
     "item_id" int8 NOT NULL,
     "increment_rate" int8 NOT NULL,
-    "finished" bool NOT NULL DEFAULT false,
-    "winner" int8 NOT NULL,
+    "winner_user_id" int8 NOT NULL,
     PRIMARY KEY ("id")
 );
 
@@ -22,7 +16,7 @@ CREATE TABLE "public"."bids" (
     "id" int8 NOT NULL DEFAULT nextval('bids_id_seq'::regclass),
     "auction_id" int8 NOT NULL,
     "user_id" int8 NOT NULL,
-    "initial" bool NOT NULL DEFAULT false,
+    "is_initial" bool NOT NULL DEFAULT false,
     "amount" int8 NOT NULL,
     "created_at" timestamp NOT NULL,
     PRIMARY KEY ("id")
@@ -38,6 +32,41 @@ CREATE TABLE "public"."categories" (
     PRIMARY KEY ("id")
 );
 
+CREATE SEQUENCE IF NOT EXISTS ratings_id_seq;
+
+-- Table Definition
+CREATE TABLE "public"."comments" (
+    "id" int8 NOT NULL DEFAULT nextval('ratings_id_seq'::regclass),
+    "item_id" int8 NOT NULL,
+    "user_id" int8 NOT NULL,
+    "rating" int2 NOT NULL,
+    "content" text,
+    PRIMARY KEY ("id")
+);
+
+CREATE SEQUENCE IF NOT EXISTS featurings_id_seq;
+
+-- Table Definition
+CREATE TABLE "public"."featurings" (
+    "id" int8 NOT NULL DEFAULT nextval('featurings_id_seq'::regclass),
+    "user_id" int8 NOT NULL,
+    "item_id" int8 NOT NULL,
+    "created_at" timestamp NOT NULL,
+    PRIMARY KEY ("id")
+);
+
+CREATE SEQUENCE IF NOT EXISTS fundings_id_seq;
+
+-- Table Definition
+CREATE TABLE "public"."fundings" (
+    "id" int8 NOT NULL DEFAULT nextval('fundings_id_seq'::regclass),
+    "user_id" int8 NOT NULL,
+    "amount" int8 NOT NULL,
+    "payment_method" varchar NOT NULL,
+    "created_at" timestamp NOT NULL,
+    PRIMARY KEY ("id")
+);
+
 CREATE SEQUENCE IF NOT EXISTS items_id_seq;
 
 -- Table Definition
@@ -45,12 +74,12 @@ CREATE TABLE "public"."items" (
     "id" int8 NOT NULL DEFAULT nextval('items_id_seq'::regclass),
     "title" varchar NOT NULL,
     "base_link" varchar NOT NULL,
-    "ref" varchar,
+    "ref_link" varchar,
     "description" text,
-    "featured" bool NOT NULL DEFAULT false,
+    "is_featured" bool NOT NULL DEFAULT false,
     "created_at" timestamp NOT NULL,
     "updated_at" timestamp NOT NULL,
-    "ref_owner" int8,
+    "ref_link_owner_user_id" int8,
     "featured_by" int8,
     PRIMARY KEY ("id")
 );
@@ -63,18 +92,7 @@ CREATE TABLE "public"."notifications" (
     "user_id" int8 NOT NULL,
     "content" text NOT NULL,
     "created_at" timestamp NOT NULL,
-    "viewed" bool NOT NULL DEFAULT false,
-    PRIMARY KEY ("id")
-);
-
-CREATE SEQUENCE IF NOT EXISTS ratings_id_seq;
-
--- Table Definition
-CREATE TABLE "public"."ratings" (
-    "id" int8 NOT NULL DEFAULT nextval('ratings_id_seq'::regclass),
-    "item_id" int8 NOT NULL,
-    "user_id" int8 NOT NULL,
-    "rating" int2 NOT NULL,
+    "is_read" bool NOT NULL DEFAULT false,
     PRIMARY KEY ("id")
 );
 
@@ -83,10 +101,15 @@ CREATE SEQUENCE IF NOT EXISTS untitled_table_197_id_seq;
 -- Table Definition
 CREATE TABLE "public"."requests" (
     "id" int8 NOT NULL DEFAULT nextval('untitled_table_197_id_seq'::regclass),
-    "type" varchar NOT NULL DEFAULT ''::character varying,
-    "content" text,
+    "action_type" varchar NOT NULL DEFAULT ''::character varying,
+    "title" varchar,
+    "base_link" varchar,
+    "description" text,
+    "comment" text,
+    "rating" int2,
+    "item_id" int8,
     "user_id" int8 NOT NULL,
-    "approved" bool NOT NULL DEFAULT false,
+    "is_approved" bool NOT NULL DEFAULT false,
     "created_at" timestamp NOT NULL,
     PRIMARY KEY ("id")
 );
@@ -100,9 +123,10 @@ CREATE TABLE "public"."users" (
     "password" varchar NOT NULL,
     "balance" int8,
     "created_at" timestamp NOT NULL,
-    "activated" bool NOT NULL DEFAULT false,
+    "is_activated" bool NOT NULL DEFAULT false,
     "last_ip" varchar NOT NULL,
-    "admin" bool NOT NULL DEFAULT false,
+    "is_admin" bool NOT NULL DEFAULT false,
+    "is_deleted" bool NOT NULL DEFAULT false,
     PRIMARY KEY ("id")
 );
 
