@@ -20,22 +20,28 @@ type user struct {
 	IsDeleted   bool      `json:"is_deleted"`
 }
 
-// GET user by ID
+// GET users
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
-		userRow, err := database.DB.Query("SELECT * FROM users " + queryParams + "';")
-		defer userRow.Close()
+		userRows, err := database.DB.Query("SELECT * FROM users " + queryParams + "';")
+		defer userRows.Close()
 		code := 200
 		msg := "OK"
-		u := &user{}
+		users := []*user{}
 		if err != nil {
-			for userRow.Next() {
-				userRow.Scan(&u.ID)
+			for userRows.Next() {
+				u := &user{}
+				userRows.Scan(&u.ID)
+				users = append(users, u)
 			}
-			if u == nil {
+			if len(users) == 0 {
 				code = 404
-				msg = "User not found"
+				msg = "No users"
+				_, ID := c.Request.URL.Query()["id"]
+				if ID {
+					msg = "User not found"
+				}
 			}
 		} else {
 			code = 500
@@ -48,7 +54,7 @@ func GET() func(c *gin.Context) {
 			"meta": gin.H{
 				"query": c.Request.URL.Query(),
 			},
-			"data": u,
+			"data": users,
 		})
 	}
 }
