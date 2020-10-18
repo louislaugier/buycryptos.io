@@ -38,8 +38,8 @@ func GET() func(c *gin.Context) {
 			if len(users) == 0 {
 				code = 404
 				msg = "No users"
-				_, ID := c.Request.URL.Query()["id"]
-				if ID {
+				_, hasID := c.Request.URL.Query()["id"]
+				if hasID {
 					msg = "User not found"
 				}
 			}

@@ -39,8 +39,8 @@ func GET() func(c *gin.Context) {
 			if len(items) == 0 {
 				code = 404
 				msg = "No items"
-				_, ID := c.Request.URL.Query()["id"]
-				if ID {
+				_, hasID := c.Request.URL.Query()["id"]
+				if hasID {
 					msg = "Item not found"
 				}
 			}
