@@ -9,52 +9,48 @@ import (
 )
 
 type user struct {
-	ID          int8      `json:"id"`
-	Email       string    `json:"email"`
-	Password    string    `json:"password"`
-	Balance     int8      `json:"balance"`
+	ID          *int      `json:"id"`
+	Email       *string   `json:"email"`
+	Password    *string   `json:"password"`
+	Balance     *int      `json:"balance"`
 	CreatedAt   time.Time `json:"created_at"`
-	IsActivated bool      `json:"is_activated"`
-	LastIP      string    `json:"last_ip"`
-	IsAdmin     bool      `json:"is_admin"`
-	IsDeleted   bool      `json:"is_deleted"`
+	IsActivated *bool     `json:"is_activated"`
+	LastIP      *string   `json:"last_ip"`
+	IsAdmin     *bool     `json:"is_admin"`
+	IsDeleted   *bool     `json:"is_deleted"`
 }
 
 // GET users
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
-		userRows, err := database.DB.Query("SELECT * FROM users " + queryParams + "';")
-		defer userRows.Close()
+		q := database.StandardizeQuery(c.Request.URL.Query())
+		r, e := database.DB.Query("select id, email, password, balance, created_at, is_activated, last_ip, is_admin, is_deleted from users " + q + ";")
+		defer r.Close()
 		code := 200
-		msg := "OK"
 		users := []*user{}
-		if err != nil {
-			for userRows.Next() {
-				u := &user{}
-				userRows.Scan(&u.ID)
-				users = append(users, u)
+		var err interface{}
+		if e == nil {
+			for r.Next() {
+				i := &user{}
+				r.Scan(&i.ID, &i.Email, &i.Password, &i.Balance, &i.CreatedAt, &i.IsActivated, &i.LastIP, &i.IsAdmin, &i.IsDeleted)
+				users = append(users, i)
 			}
 			if len(users) == 0 {
 				code = 404
-				msg = "No users"
 				_, hasID := c.Request.URL.Query()["id"]
 				if hasID {
-					msg = "User not found"
+					err = "User not found"
+				} else {
+					err = "No users"
 				}
 			}
 		} else {
+			err = string(e.Error())
 			code = 500
-			msg = "Internal server error"
 		}
 		c.JSON(code, &gin.H{
-			"statusCode": code,
-			"message":    msg,
-			"error":      err.Error(),
-			"meta": gin.H{
-				"query": c.Request.URL.Query(),
-			},
-			"data": users,
+			"error": err,
+			"data":  users,
 		})
 	}
 }

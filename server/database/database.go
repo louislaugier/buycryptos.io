@@ -16,34 +16,34 @@ func connect() *sql.DB {
 	// 	panic(err)
 	// }
 	db, _ := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/local_dev?sslmode=disable")
-	err := db.Ping()
-	if err != nil {
-		panic(err)
+	e := db.Ping()
+	if e != nil {
+		panic(e)
 	}
 	return db
 }
 
-// StandardizeQuery from HTTP to SQL
-func StandardizeQuery(query url.Values, operator string) string {
+// StandardizeQuery from URL to SQL
+func StandardizeQuery(q url.Values) string {
 	ID := ""
 	orderBy := ""
 	order := ""
 	limit := ""
 	offset := ""
-	if _, i := query["id"]; i {
-		orderBy = operator + " id='" + query["id"][0] + "' "
+	if _, i := q["id"]; i {
+		orderBy = "where id='" + q["id"][0] + "' "
 	}
-	if _, i := query["orderby"]; i {
-		orderBy = "ORDER BY " + query["orderby"][0] + " "
+	if _, i := q["orderby"]; i {
+		orderBy = "order by " + q["orderby"][0] + " "
 	}
-	if _, i := query["order"]; i {
-		order = query["order"][0] + " "
+	if _, i := q["order"]; i {
+		order = q["order"][0] + " "
 	}
-	if _, i := query["limit"]; i {
-		limit = "LIMIT " + query["limit"][0] + " "
+	if _, i := q["limit"]; i {
+		limit = "limit " + q["limit"][0] + " "
 	}
-	if _, i := query["offset"]; i {
-		offset = "OFFSET " + query["offset"][0] + " "
+	if _, i := q["offset"]; i {
+		offset = "offset " + q["offset"][0] + " "
 	}
-	return strings.TrimSuffix(" "+ID+orderBy+order+limit+offset, " ")
+	return strings.TrimSuffix(ID+orderBy+order+limit+offset, " ")
 }

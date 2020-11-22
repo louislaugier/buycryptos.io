@@ -9,53 +9,48 @@ import (
 )
 
 type item struct {
-	ID                 int8      `json:"id"`
-	Title              string    `json:"title"`
-	BaseLink           string    `json:"base_link"`
-	RefLink            string    `json:"ref_link"`
-	Description        string    `json:"description"`
-	IsFeatured         bool      `json:"is_featured"`
+	ID                 *int      `json:"id"`
+	Title              *string   `json:"title"`
+	BaseLink           *string   `json:"base_link"`
+	RefLink            *string   `json:"ref_link"`
+	Description        *string   `json:"description"`
+	IsFeatured         *bool     `json:"is_featured"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
-	RefLinkOwnerUserID int8      `json:"ref_link_owner_user_id"`
-	FeaturerUserID     string    `json:"featurer_user_id"`
+	RefLinkOwnerUserID *int      `json:"ref_link_owner_user_id"`
+	FeaturerUserID     *string   `json:"featurer_user_id"`
 }
 
 // GET items
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		queryParams := database.StandardizeQuery(c.Request.URL.Query(), "WHERE")
-		itemsRows, err := database.DB.Query("SELECT * FROM items " + queryParams + "';")
-		defer itemsRows.Close()
+		r, e := database.DB.Query("select id, title, base_link, ref_link, description, is_featured, created_at, updated_at, ref_link_owner_user_id, featurer_user_id from items " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		defer r.Close()
 		code := 200
-		msg := "OK"
 		items := []*item{}
-		if err != nil {
-			for itemsRows.Next() {
+		var err interface{}
+		if e == nil {
+			for r.Next() {
 				i := &item{}
-				itemsRows.Scan(&i.ID)
+				r.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.IsFeatured, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserID, &i.FeaturerUserID)
 				items = append(items, i)
 			}
 			if len(items) == 0 {
 				code = 404
-				msg = "No items"
 				_, hasID := c.Request.URL.Query()["id"]
 				if hasID {
-					msg = "Item not found"
+					err = "Item not found"
+				} else {
+					err = "No items"
 				}
 			}
 		} else {
+			err = string(e.Error())
 			code = 500
-			msg = "Internal server error"
 		}
 		c.JSON(code, &gin.H{
-			"statusCode": code,
-			"message":    msg,
-			"error":      err.Error(),
-			"meta": gin.H{
-				"query": c.Request.URL.Query(),
-			},
-			"data": items,
+			"error": err,
+			"data":  items,
 		})
 	}
 }
