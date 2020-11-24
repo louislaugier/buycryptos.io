@@ -19,15 +19,19 @@ type item struct {
 	UpdatedAt          time.Time `json:"updated_at"`
 	RefLinkOwnerUserID *int      `json:"ref_link_owner_user_id"`
 	FeaturerUserID     *string   `json:"featurer_user_id"`
+	CategoryID         *int      `json:"category_id"`
 }
 
 // GET items
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, title, base_link, ref_link, description, is_featured, created_at, updated_at, ref_link_owner_user_id, featurer_user_id from items " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		q, cID := c.Request.URL.Query(), ""
+		if _, i := q["category_id"]; i {
+			cID = "where category_id='" + q["category_id"][0] + "' "
+		}
+		r, e := database.DB.Query("select id, title, base_link, ref_link, description, is_featured, created_at, updated_at, ref_link_owner_user_id, featurer_user_id from items " + cID + database.StandardizeQuery(q) + ";")
 		defer r.Close()
-		code := 200
-		items := []*item{}
+		code, items := 200, []*item{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
@@ -45,8 +49,7 @@ func GET() func(c *gin.Context) {
 				}
 			}
 		} else {
-			err = string(e.Error())
-			code = 500
+			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
 			"error": err,

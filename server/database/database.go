@@ -25,14 +25,28 @@ func connect() *sql.DB {
 
 // StandardizeQuery from URL to SQL
 func StandardizeQuery(q url.Values) string {
-	ID := ""
-	orderBy := ""
-	order := ""
-	limit := ""
-	offset := ""
+	ID, orderBy, order, limit, offset := "", "", "", "", ""
 	if _, i := q["id"]; i {
-		orderBy = "where id='" + q["id"][0] + "' "
+		ID = "where id='" + q["id"][0] + "' "
 	}
+	// if _, i := q["user_id"]; i {
+	// 	ID = "where user_id='" + q["user_id"][0] + "' "
+	// }
+	// if _, i := q["item_id"]; i {
+	// 	ID = "where item_id='" + q["item_id"][0] + "' "
+	// }
+	// if _, i := q["auction_id"]; i {
+	// 	ID = "where auction_id='" + q["auction_id"][0] + "' "
+	// }
+	// if _, i := q["winner_user_id"]; i {
+	// 	ID = "where winner_user_id='" + q["winner_user_id"][0] + "' "
+	// }
+	// if _, i := q["ref_link_owner_user_id"]; i {
+	// 	ID = "where ref_link_owner_user_id='" + q["ref_link_owner_user_id"][0] + "' "
+	// }
+	// if _, i := q["featurer_user_id"]; i {
+	// 	ID = "where featurer_user_id='" + q["featurer_user_id"][0] + "' "
+	// }
 	if _, i := q["orderby"]; i {
 		orderBy = "order by " + q["orderby"][0] + " "
 	}

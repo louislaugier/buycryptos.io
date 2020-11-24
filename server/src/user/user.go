@@ -6,25 +6,27 @@ import (
 	"buycryptos/server/database"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type user struct {
-	ID          *int      `json:"id"`
-	Email       *string   `json:"email"`
-	Password    *string   `json:"password"`
-	Balance     *int      `json:"balance"`
-	CreatedAt   time.Time `json:"created_at"`
-	IsActivated *bool     `json:"is_activated"`
-	LastIP      *string   `json:"last_ip"`
-	IsAdmin     *bool     `json:"is_admin"`
-	IsDeleted   *bool     `json:"is_deleted"`
+	ID          *int       `json:"id"`
+	Email       *string    `json:"email"`
+	Password    *string    `json:"password"`
+	Balance     *int       `json:"balance"`
+	CreatedAt   time.Time  `json:"created_at"`
+	IsActivated *bool      `json:"is_activated"`
+	LastIP      *string    `json:"last_ip"`
+	IsAdmin     *bool      `json:"is_admin"`
+	IsDeleted   *bool      `json:"is_deleted"`
+	Token       *uuid.UUID `json:"token"`
 }
 
 // GET users
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := database.StandardizeQuery(c.Request.URL.Query())
-		r, e := database.DB.Query("select id, email, password, balance, created_at, is_activated, last_ip, is_admin, is_deleted from users " + q + ";")
+		r, e := database.DB.Query("select id, email, password, balance, created_at, is_activated, last_ip, is_admin, is_deleted, token from users " + q + ";")
 		defer r.Close()
 		code := 200
 		users := []*user{}
@@ -32,7 +34,7 @@ func GET() func(c *gin.Context) {
 		if e == nil {
 			for r.Next() {
 				i := &user{}
-				r.Scan(&i.ID, &i.Email, &i.Password, &i.Balance, &i.CreatedAt, &i.IsActivated, &i.LastIP, &i.IsAdmin, &i.IsDeleted)
+				r.Scan(&i.ID, &i.Email, &i.Password, &i.Balance, &i.CreatedAt, &i.IsActivated, &i.LastIP, &i.IsAdmin, &i.IsDeleted, &i.Token)
 				users = append(users, i)
 			}
 			if len(users) == 0 {
