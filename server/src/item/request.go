@@ -2,6 +2,7 @@ package item
 
 import (
 	"buycryptos/server/database"
+	"encoding/json"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -51,6 +52,26 @@ func RequestsGET() func(c *gin.Context) {
 		c.JSON(code, &gin.H{
 			"error": err,
 			"data":  requests,
+		})
+	}
+}
+
+// RequestPOST export
+func RequestPOST() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		r, code := &request{}, 200
+		payload, _ := c.GetRawData()
+		json.Unmarshal(payload, r)
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil {
+			_, e = tx.Exec("INSERT INTO requests (action_type, title, base_link, description, comment, rating, item_id, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);", &r.ActionType, &r.Title, &r.BaseLink, &r.Description, &r.Comment, &r.Rating, &r.ItemID, &r.UserID)
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": err,
 		})
 	}
 }
