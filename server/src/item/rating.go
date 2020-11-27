@@ -17,10 +17,14 @@ type rating struct {
 // RatingsGET export
 func RatingsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, item_id, user_id, rating, comment from ratings " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		i := ""
+		itemID, hasItemID := c.Request.URL.Query()["item_id"]
+		if hasItemID {
+			i = "where item_id='" + itemID[0] + "' "
+		}
+		r, e := database.DB.Query("select id, item_id, user_id, rating, comment from ratings " + i + database.StandardizeQuery(c.Request.URL.Query()) + ";")
 		defer r.Close()
-		code := 200
-		ratings := []*rating{}
+		code, ratings := 200, []*rating{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
@@ -38,12 +42,38 @@ func RatingsGET() func(c *gin.Context) {
 				}
 			}
 		} else {
-			err = string(e.Error())
-			code = 500
+			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
 			"error": err,
 			"data":  ratings,
+		})
+	}
+}
+
+// AverageRatingGET export
+func AverageRatingGET() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		r, e := database.DB.Query("select rating from ratings where item_id='" + c.Request.URL.Query()["item_id"][0] + "';")
+		defer r.Close()
+		code, ratings, t := 200, []*float64{}, 0.00
+		var err, a interface{}
+		if e == nil {
+			for r.Next() {
+				rtg := 0.00
+				r.Scan(&rtg)
+				t, ratings = t+rtg, append(ratings, &rtg)
+			}
+			a = t / float64(len(ratings))
+			if len(ratings) == 0 {
+				code, a, err = 404, nil, "No ratings"
+			}
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": err,
+			"data":  a,
 		})
 	}
 }

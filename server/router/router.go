@@ -26,6 +26,7 @@ func Start() *gin.Engine {
 	r.GET(p+"/items", item.GET())
 	r.GET(p+"/categories", item.CategoriesGET())
 	r.GET(p+"/ratings", item.RatingsGET())
+	r.GET(p+"/rating", item.AverageRatingGET())
 	r.GET(p+"/featurings", item.FeaturingsGET())
 	r.GET(p+"/auctions", item.AuctionsGET())
 	r.GET(p+"/bids", item.BidsGET())
