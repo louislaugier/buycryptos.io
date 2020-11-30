@@ -9,7 +9,7 @@ import (
 
 type notification struct {
 	ID        *int      `json:"id"`
-	UserID    *int      `json:"user_id"`
+	UserEmail *int      `json:"user_email"`
 	Content   *string   `json:"content"`
 	CreatedAt time.Time `json:"created_at"`
 	IsRead    *bool     `json:"is_read"`
@@ -18,7 +18,7 @@ type notification struct {
 // NotificationsGET export
 func NotificationsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, user_id, content, created_at, is_read from notifications " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		r, e := database.DB.Query("select id, user_email, content, created_at, is_read from notifications " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
 		defer r.Close()
 		code := 200
 		notifications := []*notification{}
@@ -26,7 +26,7 @@ func NotificationsGET() func(c *gin.Context) {
 		if e == nil {
 			for r.Next() {
 				n := &notification{}
-				r.Scan(&n.ID, &n.UserID, &n.Content, &n.CreatedAt, &n.IsRead)
+				r.Scan(&n.ID, &n.UserEmail, &n.Content, &n.CreatedAt, &n.IsRead)
 				notifications = append(notifications, n)
 			}
 			if len(notifications) == 0 {

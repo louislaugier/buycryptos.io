@@ -9,7 +9,7 @@ import (
 
 type funding struct {
 	ID            *int      `json:"id"`
-	UserID        *int      `json:"user_id"`
+	UserEmail     *int      `json:"user_email"`
 	Amount        *int      `json:"amount"`
 	PaymentMethod *string   `json:"payment_method"`
 	CreatedAt     time.Time `json:"created_at"`
@@ -18,7 +18,7 @@ type funding struct {
 // FundingsGET export
 func FundingsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, action_type, title, base_link, description, comment, rating, item_id, user_id, is_approved, created_at from fundings " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		r, e := database.DB.Query("select id, action_type, title, base_link, description, comment, rating, item_id, user_email, is_approved, created_at from fundings " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
 		defer r.Close()
 		code := 200
 		fundings := []*funding{}
@@ -26,7 +26,7 @@ func FundingsGET() func(c *gin.Context) {
 		if e == nil {
 			for r.Next() {
 				f := &funding{}
-				r.Scan(&f.ID, &f.UserID, &f.Amount, &f.PaymentMethod, &f.CreatedAt)
+				r.Scan(&f.ID, &f.UserEmail, &f.Amount, &f.PaymentMethod, &f.CreatedAt)
 				fundings = append(fundings, f)
 			}
 			if len(fundings) == 0 {

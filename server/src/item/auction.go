@@ -11,13 +11,13 @@ type auction struct {
 	ID            *int      `json:"id"`
 	ItemID        *int      `json:"item_id"`
 	IncrementRate time.Time `json:"increment_rate"`
-	WinnerUserID  time.Time `json:"winner_user_id"`
+	WinnerEmail   time.Time `json:"winner_email"`
 }
 
 // AuctionsGET export
 func AuctionsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, item_id, increment_rate, winner_user_id from auctions " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		r, e := database.DB.Query("select id, item_id, increment_rate, winner_email from auctions " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
 		defer r.Close()
 		code := 200
 		auctions := []*auction{}
@@ -25,7 +25,7 @@ func AuctionsGET() func(c *gin.Context) {
 		if e == nil {
 			for r.Next() {
 				a := &auction{}
-				r.Scan(&a.ID, &a.ItemID, &a.IncrementRate, &a.WinnerUserID)
+				r.Scan(&a.ID, &a.ItemID, &a.IncrementRate, &a.WinnerEmail)
 				auctions = append(auctions, a)
 			}
 			if len(auctions) == 0 {

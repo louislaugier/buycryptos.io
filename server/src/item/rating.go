@@ -7,11 +7,11 @@ import (
 )
 
 type rating struct {
-	ID      *int    `json:"id"`
-	ItemID  *int    `json:"item_id"`
-	UserID  *int    `json:"user_id"`
-	Rating  *int8   `json:"rating"`
-	Comment *string `json:"comment"`
+	ID        *int    `json:"id"`
+	ItemID    *int    `json:"item_id"`
+	UserEmail *int    `json:"user_email"`
+	Rating    *int8   `json:"rating"`
+	Comment   *string `json:"comment"`
 }
 
 // RatingsGET export
@@ -22,14 +22,14 @@ func RatingsGET() func(c *gin.Context) {
 		if hasItemID {
 			i = "where item_id='" + itemID[0] + "' "
 		}
-		r, e := database.DB.Query("select id, item_id, user_id, rating, comment from ratings " + i + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		r, e := database.DB.Query("select id, item_id, user_email, rating, comment from ratings " + i + database.StandardizeQuery(c.Request.URL.Query()) + ";")
 		defer r.Close()
 		code, ratings := 200, []*rating{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
 				rtg := &rating{}
-				r.Scan(&rtg.ID, &rtg.ItemID, &rtg.UserID, &rtg.Rating, &rtg.Comment)
+				r.Scan(&rtg.ID, &rtg.ItemID, &rtg.UserEmail, &rtg.Rating, &rtg.Comment)
 				ratings = append(ratings, rtg)
 			}
 			if len(ratings) == 0 {

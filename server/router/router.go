@@ -35,6 +35,10 @@ func Start() *gin.Engine {
 	r.GET(p+"/fundings", user.FundingsGET())
 	r.GET(p+"/notifications", user.NotificationsGET())
 	r.GET(p+"/users", user.GET())
+	r.PUT(p+"/users", user.PUT())
+	r.GET(p+"/profile", user.ProfileGET())
+	r.PUT(p+"/password-update", user.PasswordUpdate())
 	r.POST(p+"/users", user.POST())
+	r.GET(p+"/login", user.Login())
 	return r
 }

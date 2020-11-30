@@ -9,7 +9,7 @@ import (
 
 type featuring struct {
 	ID        *int      `json:"id"`
-	UserID    *int      `json:"user_id"`
+	UserEmail *int      `json:"user_email"`
 	ItemID    *int      `json:"item_id"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -17,7 +17,7 @@ type featuring struct {
 // FeaturingsGET export
 func FeaturingsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, user_id, item_id, created_at from featurings " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		r, e := database.DB.Query("select id, user_email, item_id, created_at from featurings " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
 		defer r.Close()
 		code := 200
 		featurings := []*featuring{}
@@ -25,7 +25,7 @@ func FeaturingsGET() func(c *gin.Context) {
 		if e == nil {
 			for r.Next() {
 				f := &featuring{}
-				r.Scan(&f.ID, &f.UserID, &f.ItemID, &f.CreatedAt)
+				r.Scan(&f.ID, &f.UserEmail, &f.ItemID, &f.CreatedAt)
 				featurings = append(featurings, f)
 			}
 			if len(featurings) == 0 {
