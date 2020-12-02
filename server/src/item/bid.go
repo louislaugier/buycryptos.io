@@ -19,10 +19,13 @@ type bid struct {
 // BidsGET export
 func BidsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, auction_id, user_email, is_initial, amount, created_at from bids " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		q, code, bids, ue := c.Request.URL.Query(), 200, []*bid{}, ""
+		em, hasEmail := q["user_email"]
+		if hasEmail {
+			ue = "where user_email='" + em[0] + "' "
+		}
+		r, e := database.DB.Query("select id, auction_id, user_email, is_initial, amount, created_at from bids " + ue + database.StandardizeQuery(q) + ";")
 		defer r.Close()
-		code := 200
-		bids := []*bid{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
@@ -40,12 +43,11 @@ func BidsGET() func(c *gin.Context) {
 				}
 			}
 		} else {
-			err = string(e.Error())
-			code = 500
+			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
-			"error": err,
-			"data":  bids,
+			"error": &err,
+			"data":  &bids,
 		})
 	}
 }

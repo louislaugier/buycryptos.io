@@ -23,7 +23,7 @@ type item struct {
 	ImagePath             *string   `json:"image_path"`
 }
 
-// GET items
+// GET export
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q, cID := c.Request.URL.Query(), ""
@@ -53,8 +53,64 @@ func GET() func(c *gin.Context) {
 			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
-			"error": err,
-			"data":  items,
+			"error": &err,
+			"data":  &items,
+		})
+	}
+}
+
+// ReflinksGET export
+func ReflinksGET() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		rl, code, items := q["ref_link_owner_email"][0], 200, []*item{}
+		r, e := database.DB.Query("select id, title, base_link, ref_link, description, is_featured, created_at, updated_at, ref_link_owner_user_email, featurer_user_email, image_path from items where ref_link_owner_email='" + rl + "' " + database.StandardizeQuery(q) + ";")
+		defer r.Close()
+		var err interface{}
+		if e == nil {
+			for r.Next() {
+				i := &item{}
+				r.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.IsFeatured, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.ImagePath)
+				items = append(items, i)
+			}
+			if len(items) == 0 {
+				code = 404
+				err = "No reflinks"
+			}
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &items,
+		})
+	}
+}
+
+// FeaturedGET export
+func FeaturedGET() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		f, code, items := q["featurer_user_email"][0], 200, []*item{}
+		r, e := database.DB.Query("select id, title, base_link, ref_link, description, is_featured, created_at, updated_at, ref_link_owner_user_email, featurer_user_email, image_path from items where featurer_user_email='" + f + "' " + database.StandardizeQuery(q) + ";")
+		defer r.Close()
+		var err interface{}
+		if e == nil {
+			for r.Next() {
+				i := &item{}
+				r.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.IsFeatured, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.ImagePath)
+				items = append(items, i)
+			}
+			if len(items) == 0 {
+				code = 404
+				err = "No featured items"
+			}
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &items,
 		})
 	}
 }

@@ -24,6 +24,8 @@ func Start() *gin.Engine {
 		AllowAllOrigins: true,
 	}))
 	r.GET(p+"/items", item.GET())
+	r.GET(p+"/reflinks", item.ReflinksGET())
+	r.GET(p+"/featured", item.FeaturedGET())
 	r.GET(p+"/categories", item.CategoriesGET())
 	r.GET(p+"/ratings", item.RatingsGET())
 	r.GET(p+"/rating", item.AverageRatingGET())

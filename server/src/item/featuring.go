@@ -17,10 +17,13 @@ type featuring struct {
 // FeaturingsGET export
 func FeaturingsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, user_email, item_id, created_at from featurings " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		q, code, featurings, ue := c.Request.URL.Query(), 200, []*featuring{}, ""
+		em, hasEmail := q["user_email"]
+		if hasEmail {
+			ue = "where user_email='" + em[0] + "' "
+		}
+		r, e := database.DB.Query("select id, user_email, item_id, created_at from featurings " + ue + database.StandardizeQuery(q) + ";")
 		defer r.Close()
-		code := 200
-		featurings := []*featuring{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
@@ -34,16 +37,15 @@ func FeaturingsGET() func(c *gin.Context) {
 				if hasID {
 					err = "Featuring not found"
 				} else {
-					err = "No featurings"
+					err = "No featuring history"
 				}
 			}
 		} else {
-			err = string(e.Error())
-			code = 500
+			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
-			"error": err,
-			"data":  featurings,
+			"error": &err,
+			"data":  &featurings,
 		})
 	}
 }

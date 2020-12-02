@@ -18,10 +18,13 @@ type funding struct {
 // FundingsGET export
 func FundingsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r, e := database.DB.Query("select id, action_type, title, base_link, description, comment, rating, item_id, user_email, is_approved, created_at from fundings " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
+		q, code, fundings, ue := c.Request.URL.Query(), 200, []*funding{}, ""
+		em, hasEmail := q["user_email"]
+		if hasEmail {
+			ue = "where user_email='" + em[0] + "' "
+		}
+		r, e := database.DB.Query("select id, action_type, title, base_link, description, comment, rating, item_id, user_email, is_approved, created_at from fundings " + ue + database.StandardizeQuery(q) + ";")
 		defer r.Close()
-		code := 200
-		fundings := []*funding{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
@@ -39,12 +42,11 @@ func FundingsGET() func(c *gin.Context) {
 				}
 			}
 		} else {
-			err = string(e.Error())
-			code = 500
+			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
-			"error": err,
-			"data":  fundings,
+			"error": &err,
+			"data":  &fundings,
 		})
 	}
 }
