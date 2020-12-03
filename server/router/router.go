@@ -24,9 +24,15 @@ func Start() *gin.Engine {
 		AllowAllOrigins: true,
 	}))
 	r.GET(p+"/items", item.GET())
+	r.POST(p+"/item", item.POST())
+
+	r.DELETE(p+"/item", item.DELETE())
 	r.GET(p+"/reflinks", item.ReflinksGET())
 	r.GET(p+"/featured", item.FeaturedGET())
 	r.GET(p+"/categories", item.CategoriesGET())
+	r.POST(p+"/categories", item.CategoryPOST())
+	r.PUT(p+"/categories", item.CategoryPUT())
+	r.DELETE(p+"/categories", item.CategoryDELETE())
 	r.GET(p+"/ratings", item.RatingsGET())
 	r.GET(p+"/rating", item.AverageRatingGET())
 	r.GET(p+"/featurings", item.FeaturingsGET())

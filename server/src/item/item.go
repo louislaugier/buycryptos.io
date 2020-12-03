@@ -1,6 +1,8 @@
 package item
 
 import (
+	"encoding/json"
+	"os"
 	"time"
 
 	"buycryptos/server/database"
@@ -110,6 +112,74 @@ func FeaturedGET() func(c *gin.Context) {
 		c.JSON(code, &gin.H{
 			"error": &err,
 			"data":  &items,
+		})
+	}
+}
+
+// POST export
+func POST() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		t := c.Request.URL.Query()["token"][0]
+		i, code := &item{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &i)
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil && t == os.Getenv("ADMIN_TOKEN") {
+			_, e = tx.Exec("insert into items (title, base_link, ref_link, description, category_id, image_path) values ($1,$2,$3,$4,$5,$6);", &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.CategoryID, &i.ImagePath)
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &i,
+		})
+	}
+}
+
+// PUT export
+func PUT() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		t, ID := q["token"][0], q["id"][0]
+		i, code := &item{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &i)
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil && t == os.Getenv("ADMIN_TOKEN") {
+			_, e = tx.Exec("update items set title=$1, base_link=$2, ref_link=$3, description=$4, is_featured=$5, updated_at=$6, ref_link_owner_email=$7, featurer_user_email=$8, category_id=$8, image_path=$9 where id='"+ID+"';", &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.IsFeatured, &i.UpdatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.CategoryID, &i.ImagePath)
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &i,
+		})
+	}
+}
+
+// DELETE export
+func DELETE() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		t, ID := q["token"][0], q["id"][0]
+		i, code := &item{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &i)
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil && t == os.Getenv("ADMIN_TOKEN") {
+			_, e = tx.Exec("delete from items where id='" + ID + "';")
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &i,
 		})
 	}
 }

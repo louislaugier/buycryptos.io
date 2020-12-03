@@ -2,6 +2,8 @@ package item
 
 import (
 	"buycryptos/server/database"
+	"encoding/json"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,6 +44,74 @@ func CategoriesGET() func(c *gin.Context) {
 		c.JSON(code, &gin.H{
 			"error": err,
 			"data":  categories,
+		})
+	}
+}
+
+// CategoryPOST export
+func CategoryPOST() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		t := c.Request.URL.Query()["token"][0]
+		cg, code := &category{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &cg)
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil && t == os.Getenv("ADMIN_TOKEN") {
+			_, e = tx.Exec("insert into categories (title, description) values ($1,$2);", &cg.Title, &cg.Description)
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &cg,
+		})
+	}
+}
+
+// CategoryPUT export
+func CategoryPUT() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		t, ID := q["token"][0], q["id"][0]
+		cg, code := &category{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &cg)
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil && t == os.Getenv("ADMIN_TOKEN") {
+			_, e = tx.Exec("update categories set title=$1, description=$2 where id='"+ID+"';", &cg.Title, &cg.Description)
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &cg,
+		})
+	}
+}
+
+// CategoryDELETE export
+func CategoryDELETE() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		t, ID := q["token"][0], q["id"][0]
+		cg, code := &category{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &cg)
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil && t == os.Getenv("ADMIN_TOKEN") {
+			_, e = tx.Exec("delete from categories where id='" + ID + "';")
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &cg,
 		})
 	}
 }
