@@ -2,7 +2,6 @@ package user
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"time"
 
@@ -31,19 +30,19 @@ func GET() func(c *gin.Context) {
 			panic(err)
 		}
 		q := c.Request.URL.Query()
-		ID, code, users, em := q["id"][0], 200, []*user{}, ""
+		ID, code, users, em := q["token"][0], 200, []*user{}, ""
 		var err interface{}
 		if ID == os.Getenv("ADMIN_TOKEN") {
 			email, hasEmail := q["email"]
 			if hasEmail {
 				em = "where email='" + email[0] + "' "
 			}
-			r, e := database.DB.Query("select email, balance, created_at, is_email_verified, last_ip, is_admin from users " + em + database.StandardizeQuery(q) + ";")
+			r, e := database.DB.Query("select id, email, balance, created_at, is_email_verified, last_ip, is_admin from users " + em + database.StandardizeQuery(q) + ";")
 			defer r.Close()
 			if e == nil {
 				for r.Next() {
 					u := &user{}
-					r.Scan(&u.Email, &u.Balance, &u.CreatedAt, &u.IsEmailVerified, &u.LastIP, &u.IsAdmin)
+					r.Scan(&u.ID, &u.Email, &u.Balance, &u.CreatedAt, &u.IsEmailVerified, &u.LastIP, &u.IsAdmin)
 					users = append(users, u)
 				}
 				if len(users) == 0 {
@@ -173,16 +172,55 @@ func POST() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		u, code := &user{}, 200
 		p, _ := c.GetRawData()
-		json.Unmarshal(p, u)
+		json.Unmarshal(p, &u)
 		u.ID, u.LastIP = uuid.New(), c.ClientIP()
 		tx, e := database.DB.Begin()
 		var err interface{}
 		if e == nil {
 			_, e = tx.Exec("insert into users (id, email, password, last_ip) values ($1, $2, $3, $4);", &u.ID, &u.Email, &u.Password, &u.LastIP)
 			tx.Commit()
-			log.Println(e)
 		} else {
 			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &u,
+		})
+	}
+}
+
+// DELETE export
+func DELETE() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
+		q := c.Request.URL.Query()
+		ID, em, code, u := q["id"][0], q["email"][0], 200, &user{}
+		var err interface{}
+		r, e := database.DB.Query("select id, email from users where email='" + em + "';")
+		defer r.Close()
+		if e == nil {
+			for r.Next() {
+				r.Scan(&u.ID, &u.Email)
+			}
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		if *u.Email != "" {
+			if ID == os.Getenv("ADMIN_TOKEN") || ID == u.ID.String() {
+				tx, e := database.DB.Begin()
+				if e == nil {
+					_, e = tx.Exec("delete from users where email='" + em + "';")
+					tx.Commit()
+				} else {
+					err, code = string(e.Error()), 500
+				}
+			} else {
+				err, code = "Forbidden", 403
+			}
+		} else {
+			err, code = "No such user", 404
 		}
 		c.JSON(code, &gin.H{
 			"error": &err,

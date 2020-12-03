@@ -61,7 +61,7 @@ func RequestPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		r, code := &request{}, 200
 		payload, _ := c.GetRawData()
-		json.Unmarshal(payload, r)
+		json.Unmarshal(payload, &r)
 		tx, e := database.DB.Begin()
 		var err interface{}
 		if e == nil {

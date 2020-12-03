@@ -102,8 +102,7 @@ func FeaturedGET() func(c *gin.Context) {
 				items = append(items, i)
 			}
 			if len(items) == 0 {
-				code = 404
-				err = "No featured items"
+				code, err = 404, "No featured items"
 			}
 		} else {
 			err, code = string(e.Error()), 500
