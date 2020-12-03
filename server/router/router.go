@@ -25,7 +25,7 @@ func Start() *gin.Engine {
 	}))
 	r.GET(p+"/items", item.GET())
 	r.POST(p+"/item", item.POST())
-
+	r.PUT(p+"/item", item.PUT())
 	r.DELETE(p+"/item", item.DELETE())
 	r.GET(p+"/reflinks", item.ReflinksGET())
 	r.GET(p+"/featured", item.FeaturedGET())
