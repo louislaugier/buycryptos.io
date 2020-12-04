@@ -83,14 +83,22 @@ func AverageRatingGET() func(c *gin.Context) {
 func RatingPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := c.Request.URL.Query()
-		ID, r, code := q["id"][0], &rating{}, 200
+		ID, em, rg, code := q["id"][0], "", &rating{}, 200
 		p, _ := c.GetRawData()
-		json.Unmarshal(p, &r)
-		// get user_email by id
-		tx, e := database.DB.Begin()
+		json.Unmarshal(p, &rg)
+		r, e := database.DB.Query("select user_email from users where id='" + ID + "';")
+		defer r.Close()
 		var err interface{}
 		if e == nil {
-			_, e = tx.Exec("insert into ratings (item_id, user_email, rating, comment) values ($1,$2,$3,$4);", &r.ItemID, em, &r.Rating, &r.Comment)
+			for r.Next() {
+				r.Scan(&em)
+			}
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		tx, e := database.DB.Begin()
+		if e == nil {
+			_, e = tx.Exec("insert into ratings (item_id, user_email, rating, comment) values ($1,$2,$3,$4);", &rg.ItemID, em, &rg.Rating, &rg.Comment)
 			tx.Commit()
 		} else {
 			err, code = string(e.Error()), 500
@@ -106,14 +114,22 @@ func RatingPOST() func(c *gin.Context) {
 func RatingPUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := c.Request.URL.Query()
-		ID, rID, r, code := q["id"][0], q["rating_id"][0], &rating{}, 200
+		ID, em, rID, rg, code := q["id"][0], "", q["rating_id"][0], &rating{}, 200
 		p, _ := c.GetRawData()
-		json.Unmarshal(p, &r)
-		// get user_email by id
-		tx, e := database.DB.Begin()
+		json.Unmarshal(p, &rg)
+		r, e := database.DB.Query("select user_email from users where id='" + ID + "';")
+		defer r.Close()
 		var err interface{}
 		if e == nil {
-			_, e = tx.Exec("update ratings set item_id=$1, user_email=$2, rating=$3, comment=$4 where id='"+rID+"';", &r.ItemID, em, &r.Rating, &r.Comment)
+			for r.Next() {
+				r.Scan(&em)
+			}
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		tx, e := database.DB.Begin()
+		if e == nil {
+			_, e = tx.Exec("update ratings set item_id=$1, user_email=$2, rating=$3, comment=$4 where id='"+rID+"';", &rg.ItemID, em, &rg.Rating, &rg.Comment)
 			tx.Commit()
 		} else {
 			err, code = string(e.Error()), 500
@@ -129,15 +145,23 @@ func RatingPUT() func(c *gin.Context) {
 func RatingDELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := c.Request.URL.Query()
-		ID, rID := q["id"][0], q["rating_id"][0]
+		ID, em, rID := q["id"][0], "", q["rating_id"][0]
 		i, code := &item{}, 200
 		p, _ := c.GetRawData()
 		json.Unmarshal(p, &i)
-		// get user_email by id
-		tx, e := database.DB.Begin()
+		r, e := database.DB.Query("select user_email from users where id='" + ID + "';")
+		defer r.Close()
 		var err interface{}
 		if e == nil {
-			_, e = tx.Exec("delete from ratings where id='" + rID + "';")
+			for r.Next() {
+				r.Scan(&em)
+			}
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		tx, e := database.DB.Begin()
+		if e == nil {
+			_, e = tx.Exec("delete from ratings where user_email='" + em + "' and id='" + rID + "';")
 			tx.Commit()
 		} else {
 			err, code = string(e.Error()), 500

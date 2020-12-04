@@ -36,7 +36,8 @@ func Start() *gin.Engine {
 	r.GET(p+"/ratings", item.RatingsGET())
 	r.GET(p+"/rating", item.AverageRatingGET())
 	r.POST(p+"/rating", item.RatingPOST())
-
+	r.PUT(p+"/rating", item.RatingPUT())
+	r.DELETE(p+"/rating", item.RatingDELETE())
 	r.GET(p+"/featurings", item.FeaturingsGET())
 	r.GET(p+"/auctions", item.AuctionsGET())
 	r.GET(p+"/bids", item.BidsGET())
@@ -44,6 +45,8 @@ func Start() *gin.Engine {
 	r.POST(p+"/requests", item.RequestPOST())
 	r.GET(p+"/fundings", user.FundingsGET())
 	r.GET(p+"/notifications", user.NotificationsGET())
+	r.GET(p+"/notification", user.NotificationPOST())
+	r.GET(p+"/notification", user.NotificationPUT())
 	r.GET(p+"/users", user.GET())
 	r.PUT(p+"/user", user.PUT())
 	r.GET(p+"/profile", user.ProfileGET())
