@@ -35,6 +35,8 @@ func Start() *gin.Engine {
 	r.DELETE(p+"/categories", item.CategoryDELETE())
 	r.GET(p+"/ratings", item.RatingsGET())
 	r.GET(p+"/rating", item.AverageRatingGET())
+	r.POST(p+"/rating", item.RatingPOST())
+
 	r.GET(p+"/featurings", item.FeaturingsGET())
 	r.GET(p+"/auctions", item.AuctionsGET())
 	r.GET(p+"/bids", item.BidsGET())

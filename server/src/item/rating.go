@@ -2,6 +2,7 @@ package item
 
 import (
 	"buycryptos/server/database"
+	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 )
@@ -45,8 +46,8 @@ func RatingsGET() func(c *gin.Context) {
 			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
-			"error": err,
-			"data":  ratings,
+			"error": &err,
+			"data":  &ratings,
 		})
 	}
 }
@@ -72,8 +73,78 @@ func AverageRatingGET() func(c *gin.Context) {
 			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
-			"error": err,
-			"data":  a,
+			"error": &err,
+			"data":  &a,
+		})
+	}
+}
+
+// RatingPOST export
+func RatingPOST() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		ID, r, code := q["id"][0], &rating{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &r)
+		// get user_email by id
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil {
+			_, e = tx.Exec("insert into ratings (item_id, user_email, rating, comment) values ($1,$2,$3,$4);", &r.ItemID, em, &r.Rating, &r.Comment)
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &r,
+		})
+	}
+}
+
+// RatingPUT export
+func RatingPUT() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		ID, rID, r, code := q["id"][0], q["rating_id"][0], &rating{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &r)
+		// get user_email by id
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil {
+			_, e = tx.Exec("update ratings set item_id=$1, user_email=$2, rating=$3, comment=$4 where id='"+rID+"';", &r.ItemID, em, &r.Rating, &r.Comment)
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &r,
+		})
+	}
+}
+
+// RatingDELETE export
+func RatingDELETE() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		q := c.Request.URL.Query()
+		ID, rID := q["id"][0], q["rating_id"][0]
+		i, code := &item{}, 200
+		p, _ := c.GetRawData()
+		json.Unmarshal(p, &i)
+		// get user_email by id
+		tx, e := database.DB.Begin()
+		var err interface{}
+		if e == nil {
+			_, e = tx.Exec("delete from ratings where id='" + rID + "';")
+			tx.Commit()
+		} else {
+			err, code = string(e.Error()), 500
+		}
+		c.JSON(code, &gin.H{
+			"error": &err,
+			"data":  &i,
 		})
 	}
 }
