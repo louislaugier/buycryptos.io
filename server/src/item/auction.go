@@ -19,8 +19,7 @@ func AuctionsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		r, e := database.DB.Query("select id, item_id, increment_rate, winner_email from auctions " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
 		defer r.Close()
-		code := 200
-		auctions := []*auction{}
+		code, auctions := 200, []*auction{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
@@ -38,12 +37,11 @@ func AuctionsGET() func(c *gin.Context) {
 				}
 			}
 		} else {
-			err = string(e.Error())
-			code = 500
+			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
-			"error": err,
-			"data":  auctions,
+			"error": &err,
+			"data":  &auctions,
 		})
 	}
 }

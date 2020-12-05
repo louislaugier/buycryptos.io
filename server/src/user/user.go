@@ -18,7 +18,7 @@ type user struct {
 	Password        *string   `json:"password"`
 	Balance         *int      `json:"balance"`
 	CreatedAt       time.Time `json:"created_at"`
-	IsEmailVerified *bool     `json:"is_email_verified"`
+	IsEmailVerified bool      `json:"is_email_verified"`
 	LastIP          string    `json:"last_ip"`
 	IsAdmin         *bool     `json:"is_admin"`
 }
@@ -103,20 +103,23 @@ func PUT() func(c *gin.Context) {
 func Login() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := c.Request.URL.Query()
-		e, p, code, ID := q["email"][0], q["password"][0], 200, ""
+		e, p, code, u := q["email"][0], q["password"][0], 200, &user{}
 		var err interface{}
-		r, err := database.DB.Query("select id from users where email='" + e + "' and password='" + p + "';")
+		r, err := database.DB.Query("select id, is_email_verified from users where email='" + e + "' and password='" + p + "';")
 		defer r.Close()
 		if err == nil {
 			for r.Next() {
-				r.Scan(&ID)
+				r.Scan(&u.ID, &u.IsEmailVerified)
 			}
 		} else {
 			code = 500
 		}
+		if !u.IsEmailVerified {
+			err, code = "Account is not verified", 403
+		}
 		c.JSON(code, &gin.H{
 			"error": &err,
-			"data":  &ID,
+			"data":  &u.ID,
 		})
 	}
 }

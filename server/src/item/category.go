@@ -19,8 +19,7 @@ func CategoriesGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		r, e := database.DB.Query("select id, title, description from categories " + database.StandardizeQuery(c.Request.URL.Query()) + ";")
 		defer r.Close()
-		code := 200
-		categories := []*category{}
+		code, categories := 200, []*category{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
@@ -38,8 +37,7 @@ func CategoriesGET() func(c *gin.Context) {
 				}
 			}
 		} else {
-			err = string(e.Error())
-			code = 500
+			err, code = string(e.Error()), 500
 		}
 		c.JSON(code, &gin.H{
 			"error": err,
@@ -51,8 +49,7 @@ func CategoriesGET() func(c *gin.Context) {
 // CategoryPOST export
 func CategoryPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		t := c.Request.URL.Query()["token"][0]
-		cg, code := &category{}, 200
+		t, cg, code := c.Request.URL.Query()["token"][0], &category{}, 200
 		p, _ := c.GetRawData()
 		json.Unmarshal(p, &cg)
 		tx, e := database.DB.Begin()
@@ -74,8 +71,7 @@ func CategoryPOST() func(c *gin.Context) {
 func CategoryPUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := c.Request.URL.Query()
-		t, ID := q["token"][0], q["id"][0]
-		cg, code := &category{}, 200
+		t, ID, cg, code := q["token"][0], q["id"][0], &category{}, 200
 		p, _ := c.GetRawData()
 		json.Unmarshal(p, &cg)
 		tx, e := database.DB.Begin()
@@ -97,8 +93,7 @@ func CategoryPUT() func(c *gin.Context) {
 func CategoryDELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := c.Request.URL.Query()
-		t, ID := q["token"][0], q["id"][0]
-		cg, code := &category{}, 200
+		t, ID, cg, code := q["token"][0], q["id"][0], &category{}, 200
 		p, _ := c.GetRawData()
 		json.Unmarshal(p, &cg)
 		tx, e := database.DB.Begin()
