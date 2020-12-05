@@ -9,7 +9,7 @@ import (
 	_ "github.com/lib/pq" // Postgres driver
 )
 
-// Start the router
+// Start export
 func Start() *gin.Engine {
 	// gin.SetMode(gin.ReleaseMode)
 	p := "/api/v1"
