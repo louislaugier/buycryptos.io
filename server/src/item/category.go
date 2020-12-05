@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 type category struct {
@@ -49,6 +50,9 @@ func CategoriesGET() func(c *gin.Context) {
 // CategoryPOST export
 func CategoryPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
 		t, cg, code := c.Request.URL.Query()["token"][0], &category{}, 200
 		p, _ := c.GetRawData()
 		json.Unmarshal(p, &cg)
@@ -70,6 +74,9 @@ func CategoryPOST() func(c *gin.Context) {
 // CategoryPUT export
 func CategoryPUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
 		q := c.Request.URL.Query()
 		t, ID, cg, code := q["token"][0], q["id"][0], &category{}, 200
 		p, _ := c.GetRawData()
@@ -92,6 +99,9 @@ func CategoryPUT() func(c *gin.Context) {
 // CategoryDELETE export
 func CategoryDELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
 		q := c.Request.URL.Query()
 		t, ID, cg, code := q["token"][0], q["id"][0], &category{}, 200
 		p, _ := c.GetRawData()

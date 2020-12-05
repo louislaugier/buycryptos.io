@@ -8,6 +8,7 @@ import (
 	"buycryptos/server/database"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 type item struct {
@@ -16,7 +17,6 @@ type item struct {
 	BaseLink              *string   `json:"base_link"`
 	RefLink               *string   `json:"ref_link"`
 	Description           *string   `json:"description"`
-	IsFeatured            *bool     `json:"is_featured"`
 	CreatedAt             time.Time `json:"created_at"`
 	UpdatedAt             time.Time `json:"updated_at"`
 	RefLinkOwnerUserEmail *int      `json:"ref_link_owner_user_email"`
@@ -32,14 +32,14 @@ func GET() func(c *gin.Context) {
 		if _, i := q["category_id"]; i {
 			cID = "where category_id='" + q["category_id"][0] + "' "
 		}
-		r, e := database.DB.Query("select id, title, base_link, ref_link, description, is_featured, created_at, updated_at, ref_link_owner_user_email, featurer_user_email, image_path from items " + cID + database.StandardizeQuery(q) + ";")
+		r, e := database.DB.Query("select id, title, base_link, ref_link, description, created_at, updated_at, ref_link_owner_user_email, featurer_user_email, image_path from items " + cID + database.StandardizeQuery(q) + ";")
 		defer r.Close()
 		code, items := 200, []*item{}
 		var err interface{}
 		if e == nil {
 			for r.Next() {
 				i := &item{}
-				r.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.IsFeatured, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.ImagePath)
+				r.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.ImagePath)
 				items = append(items, i)
 			}
 			if len(items) == 0 {
@@ -66,13 +66,13 @@ func ReflinksGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := c.Request.URL.Query()
 		rl, code, items := q["ref_link_owner_email"][0], 200, []*item{}
-		r, e := database.DB.Query("select id, title, base_link, ref_link, description, is_featured, created_at, updated_at, ref_link_owner_user_email, featurer_user_email, image_path from items where ref_link_owner_email='" + rl + "' " + database.StandardizeQuery(q) + ";")
+		r, e := database.DB.Query("select id, title, base_link, ref_link, description, created_at, updated_at, ref_link_owner_user_email, featurer_user_email, image_path from items where ref_link_owner_email='" + rl + "' " + database.StandardizeQuery(q) + ";")
 		defer r.Close()
 		var err interface{}
 		if e == nil {
 			for r.Next() {
 				i := &item{}
-				r.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.IsFeatured, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.ImagePath)
+				r.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.ImagePath)
 				items = append(items, i)
 			}
 			if len(items) == 0 {
@@ -93,14 +93,19 @@ func ReflinksGET() func(c *gin.Context) {
 func FeaturedGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		q := c.Request.URL.Query()
-		f, code, items := q["featurer_user_email"][0], 200, []*item{}
-		r, e := database.DB.Query("select id, title, base_link, ref_link, description, is_featured, created_at, updated_at, ref_link_owner_user_email, featurer_user_email, image_path from items where featurer_user_email='" + f + "' " + database.StandardizeQuery(q) + ";")
-		defer r.Close()
+		ID, em, code, items := q["id"][0], q["featurer_user_email"][0], 200, []*item{}
+		r1, e := database.DB.Query("select email from users where id='" + ID + "';")
+		defer r1.Close()
+		for r1.Next() {
+			r1.Scan(&em)
+		}
 		var err interface{}
 		if e == nil {
-			for r.Next() {
+			r2, _ := database.DB.Query("select id, title, base_link, ref_link, description, created_at, updated_at, ref_link_owner_user_email, featurer_user_email, image_path from items where featurer_user_email='" + em + "' " + database.StandardizeQuery(q) + ";")
+			defer r2.Close()
+			for r2.Next() {
 				i := &item{}
-				r.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.IsFeatured, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.ImagePath)
+				r2.Scan(&i.ID, &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.CreatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.ImagePath)
 				items = append(items, i)
 			}
 			if len(items) == 0 {
@@ -119,6 +124,9 @@ func FeaturedGET() func(c *gin.Context) {
 // POST export
 func POST() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
 		t := c.Request.URL.Query()["token"][0]
 		i, code := &item{}, 200
 		p, _ := c.GetRawData()
@@ -141,6 +149,9 @@ func POST() func(c *gin.Context) {
 // PUT export
 func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
 		q := c.Request.URL.Query()
 		t, ID := q["token"][0], q["id"][0]
 		i, code := &item{}, 200
@@ -149,7 +160,7 @@ func PUT() func(c *gin.Context) {
 		tx, e := database.DB.Begin()
 		var err interface{}
 		if e == nil && t == os.Getenv("ADMIN_TOKEN") {
-			_, e = tx.Exec("update items set title=$1, base_link=$2, ref_link=$3, description=$4, is_featured=$5, updated_at=$6, ref_link_owner_email=$7, featurer_user_email=$8, category_id=$8, image_path=$9 where id='"+ID+"';", &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.IsFeatured, &i.UpdatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.CategoryID, &i.ImagePath)
+			_, e = tx.Exec("update items set title=$1, base_link=$2, ref_link=$3, description=$4, updated_at=$5, ref_link_owner_email=$6, featurer_user_email=$7, category_id=$8, image_path=$9 where id='"+ID+"';", &i.Title, &i.BaseLink, &i.RefLink, &i.Description, &i.UpdatedAt, &i.UpdatedAt, &i.RefLinkOwnerUserEmail, &i.FeaturerUserEmail, &i.CategoryID, &i.ImagePath)
 			tx.Commit()
 		} else {
 			err, code = string(e.Error()), 500
@@ -164,6 +175,9 @@ func PUT() func(c *gin.Context) {
 // DELETE export
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
 		q := c.Request.URL.Query()
 		t, ID := q["token"][0], q["id"][0]
 		i, code := &item{}, 200

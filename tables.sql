@@ -58,11 +58,10 @@ CREATE TABLE "public"."items" (
     "base_link" varchar NOT NULL,
     "ref_link" varchar,
     "description" text,
-    "is_featured" bool NOT NULL DEFAULT false,
     "created_at" timestamp NOT NULL DEFAULT now(),
     "updated_at" timestamp NOT NULL DEFAULT now(),
-    "ref_link_owner_email" int8,
-    "featurer_user_email" int8,
+    "ref_link_owner_email" varchar,
+    "featurer_user_email" varchar,
     "category_id" int8 NOT NULL,
     "image_path" varchar,
     PRIMARY KEY ("id")
@@ -104,6 +103,8 @@ CREATE TABLE "public"."requests" (
     "user_email" int8 NOT NULL,
     "is_approved" bool NOT NULL DEFAULT false,
     "created_at" timestamp NOT NULL DEFAULT now(),
+    "category_id" int8 NOT NULL,
+    "image_path" varchar,
     PRIMARY KEY ("id")
 );
 
@@ -118,4 +119,3 @@ CREATE TABLE "public"."users" (
     "is_admin" bool NOT NULL DEFAULT false,
     PRIMARY KEY ("email")
 );
-

@@ -19,31 +19,48 @@ type bid struct {
 // BidsGET export
 func BidsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		q, code, bids, ue := c.Request.URL.Query(), 200, []*bid{}, ""
-		em, hasEmail := q["user_email"]
-		if hasEmail {
-			ue = "where user_email='" + em[0] + "' "
-		}
-		r, e := database.DB.Query("select id, auction_id, user_email, is_initial, amount, created_at from bids " + ue + database.StandardizeQuery(q) + ";")
-		defer r.Close()
+		q, code, bids, em, p := c.Request.URL.Query(), 200, []*bid{}, "", ""
+		ID, hasID := q["id"]
+		aID, hasaID := q["auction_id"]
 		var err interface{}
-		if e == nil {
-			for r.Next() {
-				b := &bid{}
-				r.Scan(&b.ID, &b.AuctionID, &b.UserEmail, &b.IsInitial, &b.Amount, &b.CreatedAt)
-				bids = append(bids, b)
-			}
-			if len(bids) == 0 {
-				code = 404
-				_, hasID := c.Request.URL.Query()["id"]
-				if hasID {
-					err = "Bid not found"
+		if hasID || hasaID {
+			if hasID {
+				r1, e := database.DB.Query("select email from users where id='" + ID[0] + "' ")
+				defer r1.Close()
+				if e == nil {
+					for r1.Next() {
+						r1.Scan(&em)
+					}
 				} else {
-					err = "No bids"
+					err, code = string(e.Error()), 500
 				}
+				p = "where user_email='" + em + "' "
+			}
+			if hasaID {
+				p = "where auction_id='" + aID[0] + "' "
+			}
+			r2, e := database.DB.Query("select id, auction_id, user_email, is_initial, amount, created_at from bids " + p + database.StandardizeQuery(q) + ";")
+			defer r2.Close()
+			if e == nil {
+				for r2.Next() {
+					b := &bid{}
+					r2.Scan(&b.ID, &b.AuctionID, &b.UserEmail, &b.IsInitial, &b.Amount, &b.CreatedAt)
+					bids = append(bids, b)
+				}
+				if len(bids) == 0 {
+					code = 404
+					_, hasID := c.Request.URL.Query()["id"]
+					if hasID {
+						err = "Bid not found"
+					} else {
+						err = "No bids"
+					}
+				}
+			} else {
+				err, code = string(e.Error()), 500
 			}
 		} else {
-			err, code = string(e.Error()), 500
+			err, code = "Forbidden", 403
 		}
 		c.JSON(code, &gin.H{
 			"error": &err,

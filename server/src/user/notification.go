@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 type notification struct {
@@ -54,6 +55,9 @@ func NotificationsGET() func(c *gin.Context) {
 // NotificationPOST export
 func NotificationPOST() func(c *gin.Context) {
 	return func(c *gin.Context) {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
 		q := c.Request.URL.Query()
 		t, n, code := q["token"][0], &notification{}, 200
 		p, _ := c.GetRawData()

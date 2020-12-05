@@ -15,12 +15,7 @@ func Start() *gin.Engine {
 	p := "/api/v1"
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
-		// ExposeHeaders: []string{"Content-Type", "Date"},
-		// AllowCredentials: true,
-		// AllowOriginFunc: func(origin string) bool {
-		// 	return origin == "http://localhost:3000"
-		// },
+		AllowMethods:    []string{"GET", "POST", "PUT", "DELETE"},
 		AllowAllOrigins: true,
 	}))
 	r.GET(p+"/items", item.GET())
@@ -39,6 +34,7 @@ func Start() *gin.Engine {
 	r.PUT(p+"/rating", item.RatingPUT())
 	r.DELETE(p+"/rating", item.RatingDELETE())
 	r.GET(p+"/featurings", item.FeaturingsGET())
+	r.PUT(p+"/featuring", item.FeaturingPUT())
 	r.GET(p+"/auctions", item.AuctionsGET())
 	r.GET(p+"/bids", item.BidsGET())
 	r.GET(p+"/requests", item.RequestsGET())
