@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 type featuring struct {
@@ -20,9 +19,6 @@ type featuring struct {
 // FeaturingsGET export
 func FeaturingsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if err := godotenv.Load(); err != nil {
-			panic(err)
-		}
 		q, p, em, code, featurings := c.Request.URL.Query(), "", "", 200, []*featuring{}
 		t, hasToken := q["token"]
 		ID, hasID := q["id"]

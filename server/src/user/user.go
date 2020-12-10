@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 )
 
 type user struct {
@@ -26,9 +25,6 @@ type user struct {
 // GET export
 func GET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if err := godotenv.Load(); err != nil {
-			panic(err)
-		}
 		q := c.Request.URL.Query()
 		ID, code, users, em := q["token"][0], 200, []*user{}, ""
 		var err interface{}
@@ -69,9 +65,6 @@ func GET() func(c *gin.Context) {
 // PUT export
 func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if err := godotenv.Load(); err != nil {
-			panic(err)
-		}
 		q := c.Request.URL.Query()
 		ID, code, u := q["id"][0], 200, &user{}
 		p, _ := c.GetRawData()
@@ -195,9 +188,6 @@ func POST() func(c *gin.Context) {
 // DELETE export
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if err := godotenv.Load(); err != nil {
-			panic(err)
-		}
 		q := c.Request.URL.Query()
 		ID, em, code, u := q["id"][0], q["email"][0], 200, &user{}
 		var err interface{}

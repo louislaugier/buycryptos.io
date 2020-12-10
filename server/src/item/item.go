@@ -8,7 +8,6 @@ import (
 	"buycryptos/server/database"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 type item struct {
@@ -124,9 +123,6 @@ func FeaturedGET() func(c *gin.Context) {
 // POST export
 func POST() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if err := godotenv.Load(); err != nil {
-			panic(err)
-		}
 		t := c.Request.URL.Query()["token"][0]
 		i, code := &item{}, 200
 		p, _ := c.GetRawData()
@@ -149,9 +145,6 @@ func POST() func(c *gin.Context) {
 // PUT export
 func PUT() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if err := godotenv.Load(); err != nil {
-			panic(err)
-		}
 		q := c.Request.URL.Query()
 		t, ID := q["token"][0], q["id"][0]
 		i, code := &item{}, 200
@@ -175,9 +168,6 @@ func PUT() func(c *gin.Context) {
 // DELETE export
 func DELETE() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if err := godotenv.Load(); err != nil {
-			panic(err)
-		}
 		q := c.Request.URL.Query()
 		t, ID := q["token"][0], q["id"][0]
 		i, code := &item{}, 200

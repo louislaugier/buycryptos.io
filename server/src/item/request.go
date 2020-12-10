@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 type request struct {
@@ -30,9 +29,6 @@ type request struct {
 // RequestsGET export
 func RequestsGET() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if err := godotenv.Load(); err != nil {
-			panic(err)
-		}
 		q := c.Request.URL.Query()
 		t := q["token"][0]
 		r, e := database.DB.Query("select id, action_type, title, base_link, description, comment, rating, item_id, category_id, image_path, user_email, is_approved, created_at from requests " + database.StandardizeQuery(q) + ";")
