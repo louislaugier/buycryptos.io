@@ -1,0 +1,4 @@
+github.com/joho/godotenv v1.3.0 h1:Zjp+RcGpHhGlrMbJzXTrZZPrWj+1vfm90La1wgB6Bhc=
+github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
+github.com/louislaugier/buycryptos.io v0.0.0-20201210225753-de2b55fa4cd2 h1:J8sERHze7RElOOzU+QfkxGzNpUZkWiir2dVlF6nuV4A=
+github.com/louislaugier/buycryptos.io v0.0.0-20201210225753-de2b55fa4cd2/go.mod h1:8GopyPFBi/Jwu2q/+43f/T9HuxdCkaVWxR2gbbK30Yw=
