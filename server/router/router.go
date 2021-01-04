@@ -1,8 +1,8 @@
 package router
 
 import (
-	"buycryptos/server/src/item"
-	"buycryptos/server/src/user"
+	"github.com/louislaugier/buycryptos/server/src/item"
+	"github.com/louislaugier/buycryptos/server/src/user"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"buycryptos/server/database"
+	"github.com/louislaugier/buycryptos/server/database"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

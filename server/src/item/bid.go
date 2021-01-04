@@ -1,7 +1,7 @@
 package item
 
 import (
-	"buycryptos/server/database"
+	"github.com/louislaugier/buycryptos/server/database"
 	"time"
 
 	"github.com/gin-gonic/gin"
