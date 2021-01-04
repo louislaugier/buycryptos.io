@@ -1,7 +1,7 @@
 package main
 
 import (
-	"buycryptos.io/server/router"
+	"buycryptos/server/router"
 
 	"github.com/joho/godotenv"
 )
