@@ -60,7 +60,7 @@ CREATE TABLE "public"."items" (
     "description" text,
     "created_at" timestamp NOT NULL DEFAULT now(),
     "updated_at" timestamp NOT NULL DEFAULT now(),
-    "ref_link_owner_email" varchar,
+    "ref_link_owner_user_email" varchar,
     "featurer_user_email" varchar,
     "category_id" int8 NOT NULL,
     "image_path" varchar,

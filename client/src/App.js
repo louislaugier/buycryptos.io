@@ -10,6 +10,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 function App() {
   return (
     <Router>
+      {/* Container */}
       <Header/>
       <Switch>
         <Route exact path="/">

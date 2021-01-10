@@ -3,8 +3,10 @@ import { Image } from "@chakra-ui/react"
 import Logo from '../../assets/logo.png'
 import { Link } from "react-router-dom"
 import { Tabs, TabList, Tab } from "@chakra-ui/react"
+import { useLocation } from 'react-router-dom'
 
 function Header() {
+  const route = useLocation().pathname
   return (
     <header>
         <Link to="/">
@@ -13,22 +15,22 @@ function Header() {
         <Tabs>
             <TabList id="Nav">
                 <Link to="/">
-                    <Tab>
+                    <Tab isSelected={route === "/" ? true : false}>
                         Home
                     </Tab>
                 </Link>
                 <Link to="/mybusiness">
-                    <Tab>
+                    <Tab isSelected={route === "/mybusiness" ? true : false}>
                         My Business
                     </Tab>
                 </Link>
                 <Link to="/auctions">
-                    <Tab>
+                    <Tab isSelected={route === "/auctions" ? true : false}>
                         Auctions
                     </Tab>                    
                 </Link>
                 <Link to="/wallet">
-                    <Tab>
+                    <Tab isSelected={route === "/wallet" ? true : false}>
                         Wallet
                     </Tab>
                 </Link>
