@@ -1,5 +1,15 @@
 body {
-  margin: 0;
+  margin: 43px 61px 64px 43px !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+header{
+  display: flex;
+  justify-content: space-between;
+}
+
+#Logo{
+  height: 47px;
+  width: 163px
 }
